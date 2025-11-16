@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件处理测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .success {
+            border-left: 4px solid #4CAF50;
+        }
+        .error {
+            border-left: 4px solid #f44336;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>文件处理功能测试</h1>
+    
+    <!-- 图像处理部分 -->
+    <div class="section">
+        <h2>图像处理测试</h2>
+        <form id="imageForm">
+            <label for="imageFile">选择微信聊天截图:</label>
+            <input type="file" id="imageFile" name="file" accept="image/*" required>
+            <br>
+            <button type="submit">处理图像</button>
+        </form>
+        <div id="imageResult" class="result" style="display:none;"></div>
+    </div>
+    
+    <!-- 音频处理部分 -->
+    <div class="section">
+        <h2>音频处理测试</h2>
+        <form id="audioForm">
+            <label for="audioFile">选择音频文件:</label>
+            <input type="file" id="audioFile" name="file" accept="audio/*" required>
+            <br>
+            <button type="submit">处理音频</button>
+        </form>
+        <div id="audioResult" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        // 图像处理表单提交
+        document.getElementById('imageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            const fileInput = document.getElementById('imageFile');
+            const resultDiv = document.getElementById('imageResult');
+            
+            if (!fileInput.files[0]) {
+                showResult(resultDiv, '请先选择一个图像文件', 'error');
+                return;
+            }
+            
+            formData.append('file', fileInput.files[0]);
+            
+            // 禁用按钮并显示加载状态
+            const submitButton = this.querySelector('button');
+            submitButton.disabled = true;
+            submitButton.textContent = '处理中...';
+            
+            fetch('/api/v1/chat/image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 200) {
+                    showResult(resultDiv, '处理成功: ' + JSON.stringify(data.data, null, 2), 'success');
+                } else {
+                    showResult(resultDiv, '处理失败: ' + data.msg, 'error');
+                }
+            })
+            .catch(error => {
+                showResult(resultDiv, '请求出错: ' + error.message, 'error');
+            })
+            .finally(() => {
+                // 恢复按钮状态
+                submitButton.disabled = false;
+                submitButton.textContent = '处理图像';
+            });
+        });
+        
+        // 音频处理表单提交
+        document.getElementById('audioForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            const fileInput = document.getElementById('audioFile');
+            const resultDiv = document.getElementById('audioResult');
+            
+            if (!fileInput.files[0]) {
+                showResult(resultDiv, '请先选择一个音频文件', 'error');
+                return;
+            }
+            
+            formData.append('file', fileInput.files[0]);
+            
+            // 禁用按钮并显示加载状态
+            const submitButton = this.querySelector('button');
+            submitButton.disabled = true;
+            submitButton.textContent = '处理中...';
+            
+            fetch('/api/v1/chat/audio', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 200) {
+                    showResult(resultDiv, '处理成功: ' + JSON.stringify(data.data, null, 2), 'success');
+                } else {
+                    showResult(resultDiv, '处理失败: ' + data.msg, 'error');
+                }
+            })
+            .catch(error => {
+                showResult(resultDiv, '请求出错: ' + error.message, 'error');
+            })
+            .finally(() => {
+                // 恢复按钮状态
+                submitButton.disabled = false;
+                submitButton.textContent = '处理音频';
+            });
+        });
+        
+        // 显示结果
+        function showResult(element, message, type) {
+            element.innerHTML = '<pre>' + message + '</pre>';
+            element.className = 'result ' + type;
+            element.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
