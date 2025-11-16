@@ -1,23 +1,2 @@
 server:
   port: 8080
-
-#langchain4j.open-ai.chat-model:
-#  api-key: ${API_KEY_ECNU_CHAT}
-#  model-name: ecnu-reasoner
-#  # 应用程序发送给大模型的请求日志和相应日志
-#  log-requests: true
-#  log-responses: true
-#  base-url: https://chat.ecnu.edu.cn/open/api/v1/
-#
-
-
-langchain4j.community.dashscope:
-  chat-model:
-    api-key: ${API_KEY_ALI_BAILIAN}
-    model-name: qwen-flash
-  embedding-model:
-    api-key: ${API_KEY_ALI_BAILIAN}
-    model-name: text-embedding-v3
-  streaming-chat-model:
-    api-key: ${API_KEY_ALI_BAILIAN}
-    model-name: qwen-flash

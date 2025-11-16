@@ -5,11 +5,9 @@ import com.github.musuyin.fuban.service.AudioProcessService;
 import com.github.musuyin.fuban.service.ImageProcessService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
@@ -27,20 +25,20 @@ public class FileProcessController {
     /**
      * 处理微信聊天截图
      */
-    @PostMapping("chat/image")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> processImage(
+    @PostMapping(value = "chat/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<Map<String, Object>> processImage(
             @RequestParam("file") MultipartFile image) {
-        log.info("接收到图片文件");
+        log.info("接收到图片文件: {}", image.getOriginalFilename());
         return imageProcessService.processImage(image);
     }
 
     /**
      * 处理语音文件转文本
      */
-    @PostMapping("chat/audio")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> processAudio(
+    @PostMapping(value = "chat/audio", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<Map<String, Object>> processAudio(
             @RequestParam("file") MultipartFile audio) {
-        log.info("接收到语音文件");
+        log.info("接收到语音文件: {}", audio.getOriginalFilename());
         return audioProcessService.processAudio(audio);
     }
 }
