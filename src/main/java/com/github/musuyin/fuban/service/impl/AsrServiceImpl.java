@@ -5,35 +5,34 @@ import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversationP
 import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversationResult;
 import com.alibaba.dashscope.common.MultiModalMessage;
 import com.alibaba.dashscope.common.Role;
-import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.exception.UploadFileException;
 import com.alibaba.dashscope.utils.Constants;
 import com.alibaba.dashscope.utils.JsonUtils;
 import com.github.musuyin.fuban.service.AsrService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.*;
 
 @Service
+@Slf4j
 public class AsrServiceImpl implements AsrService {
     @Override
-    public String transcribeAudio(byte[] audioBytes, String fileType) throws NoApiKeyException, UploadFileException {
+    public String transcribeAudio(String filePath) throws NoApiKeyException, UploadFileException {
         Constants.baseHttpApiUrl = "https://dashscope.aliyuncs.com/api/v1";
         MultiModalConversation conv = new MultiModalConversation();
-
-        // 创建包含实际音频数据的内容
-        Map<String, Object> audioContent = new HashMap<>();
-        audioContent.put("audio", audioBytes); // 使用传入的音频字节数据
+        String fileUri = "file:///" + new File(filePath).getAbsolutePath().replace("\\", "/");
 
         MultiModalMessage userMessage = MultiModalMessage.builder()
                 .role(Role.USER.getValue())
-                .content(List.of(audioContent))
+                .content(Arrays.asList(Collections.singletonMap("audio", fileUri)))
                 .build();
 
         MultiModalMessage sysMessage = MultiModalMessage.builder().role(Role.SYSTEM.getValue())
                 // 此处用于配置定制化识别的Context
-                .content(List.of(Collections.singletonMap("text", "")))
+                .content(Arrays.asList(Collections.singletonMap("text", "")))
                 .build();
 
         Map<String, Object> asrOptions = new HashMap<>();
@@ -72,6 +71,7 @@ public class AsrServiceImpl implements AsrService {
                                             sb.append(contentItem.get("text"));
                                         }
                                     }
+                                    log.info("ASR结果: {}", sb.toString());
                                     return sb.toString();
                                 }
                             }

@@ -4,5 +4,5 @@ import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.exception.UploadFileException;
 
 public interface AsrService {
-    String transcribeAudio(byte[] audioBytes, String fileType) throws NoApiKeyException, UploadFileException;
+    String transcribeAudio(String filePath) throws NoApiKeyException, UploadFileException;
 }

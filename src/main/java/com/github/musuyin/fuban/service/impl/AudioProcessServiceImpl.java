@@ -7,6 +7,9 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 @Service
@@ -23,20 +26,36 @@ public class AudioProcessServiceImpl implements AudioProcessService {
         }
 
         String text;
+        Path tempFile = null;
         try {
-            byte[] audioBytes = audio.getBytes();
-            String fileType = audio.getContentType();
-
-            // 验证文件类型
-            if (fileType == null || fileType.isEmpty()) {
-                return ApiResponse.Fail("无法识别音频文件类型");
+            // 创建临时文件
+            String originalFileName = audio.getOriginalFilename();
+            String fileExtension = "";
+            if (originalFileName != null && originalFileName.contains(".")) {
+                fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
             }
+            
+            tempFile = Files.createTempFile("audio_", fileExtension);
+            audio.transferTo(tempFile.toFile());
+
+            // 获取文件绝对路径
+            String filePath = tempFile.toAbsolutePath().toString();
 
             // 调用ASR服务进行语音识别
-            text = asrService.transcribeAudio(audioBytes, fileType);
+            text = asrService.transcribeAudio(filePath);
         } catch (Exception e) {
             // 更好的错误处理和日志记录
             return ApiResponse.Fail("音频处理失败: " + e.getMessage());
+        } finally {
+            // 删除临时文件
+            if (tempFile != null && Files.exists(tempFile)) {
+                try {
+                    Files.delete(tempFile);
+                } catch (IOException e) {
+                    // 记录删除失败的日志，但不影响主流程
+                    System.err.println("删除临时文件失败: " + e.getMessage());
+                }
+            }
         }
 
         // 封装结果返回

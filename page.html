@@ -102,7 +102,7 @@
             submitButton.disabled = true;
             submitButton.textContent = '处理中...';
             
-            fetch('/api/v1/chat/image', {
+            fetch('http://127.0.0.1:8080/api/v1/chat/image', {
                 method: 'POST',
                 body: formData
             })
@@ -143,7 +143,7 @@
             submitButton.disabled = true;
             submitButton.textContent = '处理中...';
             
-            fetch('/api/v1/chat/audio', {
+            fetch('http://127.0.0.1:8080/api/v1/chat/audio', {
                 method: 'POST',
                 body: formData
             })
